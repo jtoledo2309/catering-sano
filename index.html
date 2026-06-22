@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Grupo Heineken</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -30,6 +30,8 @@
       --r-sm:    10px;
       --pill:    100px;
       --font:    'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      /* Altura del sticky bar para calcular padding del body */
+      --bar-h:   76px;
     }
  
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -39,7 +41,8 @@
       background: var(--bg);
       color: var(--txt);
       min-height: 100vh;
-      padding-bottom: 90px;
+      /* Reserva espacio para el sticky bar + safe area de iOS */
+      padding-bottom: calc(var(--bar-h) + env(safe-area-inset-bottom, 0px));
       -webkit-tap-highlight-color: transparent;
     }
  
@@ -57,12 +60,11 @@
       border-radius: var(--r-sm); padding: 15px 20px;
       font-size: 15px; font-weight: 700;
       display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-      min-height: 52px; transition: background .15s;
+      min-height: 52px; transition: background .15s; width: 100%;
     }
     .btn-primary:hover  { background: var(--pri-h); }
     .btn-primary:active { background: var(--pri-h); }
     .btn-primary:disabled { opacity: .35; cursor: not-allowed; }
-    .btn-primary.full { width: 100%; }
  
     .btn-ghost {
       background: none; border: 1.5px solid var(--border);
@@ -74,8 +76,8 @@
  
     .btn-outline {
       background: var(--surface); border: 1.5px solid var(--border);
-      border-radius: var(--r-sm); padding: 10px 14px;
-      font-size: 18px; display: inline-flex; align-items: center; justify-content: center;
+      border-radius: var(--r-sm); font-size: 18px;
+      display: inline-flex; align-items: center; justify-content: center;
       width: 46px; height: 46px; transition: all .15s;
     }
     .btn-outline:hover  { border-color: var(--pri); }
@@ -219,16 +221,31 @@
     .tag-b    { background: var(--pri-l);   color: var(--pri);   border: 1px solid var(--border); }
     .tag-date { background: var(--green-l); color: var(--green); border: 1px solid var(--green); font-weight: 700; }
  
-    /* ── Sticky bottom bar (static in HTML) ── */
+    /* ── Sticky bar ── */
     .sticky-bar {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
-      background: var(--bg); border-top: 1px solid var(--border);
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 50;
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      /* Padding superior fijo + padding inferior que absorbe el home indicator de iOS */
       padding: 12px 16px;
-      padding-bottom: max(12px, env(safe-area-inset-bottom));
+      padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
     }
     .sticky-bar-inner {
-      max-width: 480px; margin: 0 auto; display: flex; gap: 8px;
+      max-width: 480px;
+      margin: 0 auto;
+      display: flex;
+      gap: 8px;
     }
+    .sticky-bar-inner .btn-reset {
+      background: none; border: 1.5px solid var(--border);
+      border-radius: var(--r-sm); padding: 12px 16px;
+      font-size: 13px; font-weight: 600; color: var(--txt-m);
+      white-space: nowrap; transition: all .15s; font-family: var(--font);
+      min-height: 52px;
+    }
+    .sticky-bar-inner .btn-reset:hover { border-color: var(--pri); color: var(--pri); }
  
     /* ── Empty ── */
     .empty {
@@ -250,7 +267,7 @@
       border-top: 1px solid var(--border);
       width: 100%; max-width: 480px; max-height: 92vh; overflow-y: auto;
       padding: 6px 20px;
-      padding-bottom: max(28px, env(safe-area-inset-bottom));
+      padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
       box-shadow: var(--sh-lg);
     }
     .sheet-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 14px auto 22px; }
@@ -271,7 +288,7 @@
     .form-hint { font-size: 12px; color: var(--txt-m); margin-top: 5px; }
  
     .sheet-actions { display: flex; gap: 8px; margin-top: 26px; }
-    .sheet-actions .btn-primary { flex: 1; }
+    .sheet-actions .btn-primary { width: auto; flex: 1; }
  
     .divider { height: 1px; background: var(--border); margin: 20px 0; }
  
@@ -299,16 +316,16 @@
  
     /* ── Toast ── */
     #toast {
-      position: fixed; bottom: 90px; left: 50%;
-      transform: translateX(-50%) translateY(80px);
+      position: fixed; bottom: calc(var(--bar-h) + 12px + env(safe-area-inset-bottom, 0px)); left: 50%;
+      transform: translateX(-50%) translateY(40px);
       background: var(--card); color: var(--txt); border: 1px solid var(--border);
       padding: 12px 22px; border-radius: var(--pill);
       font-size: 14px; font-weight: 600;
       box-shadow: var(--sh-lg); z-index: 999;
       transition: transform .3s cubic-bezier(.34,1.56,.64,1);
-      white-space: nowrap; pointer-events: none;
+      white-space: nowrap; pointer-events: none; opacity: 0;
     }
-    #toast.show { transform: translateX(-50%) translateY(0); }
+    #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
     #toast.err  { background: var(--red-l); color: var(--red); border-color: var(--red); }
  
     /* ── Loading / Error ── */
@@ -339,9 +356,11 @@
 <div id="app"></div>
 <div id="toast"></div>
  
-<!-- Sticky bar: estático en HTML, actualizado por JS -->
+<!-- Sticky bar: único elemento fijo en el HTML -->
 <div class="sticky-bar">
-  <div class="sticky-bar-inner" id="sticky-inner"></div>
+  <div class="sticky-bar-inner" id="sticky-inner">
+    <button class="btn-primary" disabled>📋 Asignar turno</button>
+  </div>
 </div>
  
 <!-- ═══════ MODAL: Asignar turno ═══════ -->
@@ -395,7 +414,7 @@
     <div class="divider"></div>
     <div class="danger-zone">
       <div class="danger-label">⚠ Nueva ronda</div>
-      <div class="danger-desc">Todos los miembros vuelven a "pendiente". Las fechas de última entrega se conservan.</div>
+      <div class="danger-desc">Todos los miembros vuelven a "pendiente" y se borra el historial de fechas de esta ronda.</div>
       <button class="btn-danger" onclick="handleReset()">🔄 Iniciar nueva ronda</button>
     </div>
     <div class="sheet-actions">
@@ -413,7 +432,6 @@ const API_KEY = '$2a$10$EX9QUVZw3nVG3ndTgiBfqO7dP8EAIDw4II0a58ktftvwfEc4yJsvW';
 const BIN_ID  = '6a3554cfda38895dfede0b4b';
 // ═══════════════════════════════════════════════════════════
  
-// Iconos fijos para los productos
 const ICON_A = '🍺';
 const ICON_B = '🍗';
  
@@ -421,7 +439,7 @@ const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 const HDR     = { 'X-Master-Key': API_KEY, 'Content-Type': 'application/json' };
  
 let S             = null;
-let currentFilter = 'all'; // 'all' | 'A' | 'B'
+let currentFilter = 'all';
 let toastTimer    = null;
  
 // ── Utilidades ────────────────────────────────────────────
@@ -442,11 +460,7 @@ function toast(msg, err = false) {
  
 function openSheet(id)  { document.getElementById(id).classList.add('open'); }
 function closeSheet(id) { document.getElementById(id).classList.remove('open'); }
- 
-function setFilter(f) {
-  currentFilter = f;
-  render();
-}
+function setFilter(f)   { currentFilter = f; render(); }
  
 // ── JSONBin API ───────────────────────────────────────────
 async function load() {
@@ -479,11 +493,11 @@ function normalize(raw) {
       B: raw?.productNames?.B || 'Producto B'
     },
     members: (raw?.members || []).map(m => ({
-      id:               m.id               || uid(),
-      name:             m.name             || '',
-      status:           m.status           || 'pending',
-      lastDate:         m.lastDate         || null,
-      deliveredProducts: m.deliveredProducts || null  // null | 'A' | 'B' | 'AB'
+      id:                m.id                || uid(),
+      name:              m.name              || '',
+      status:            m.status            || 'pending',
+      lastDate:          m.lastDate          || null,
+      deliveredProducts: m.deliveredProducts || null
     })),
     assignments: {
       A: raw?.assignments?.A || null,
@@ -540,7 +554,6 @@ async function doAssign(newA, newB) {
 async function doConfirm(id) {
   const m = S.members.find(x => x.id === id);
   if (!m) return;
-  // Registrar qué productos entregó
   const didA = S.assignments.A === id;
   const didB = S.assignments.B === id;
   m.deliveredProducts = (didA && didB) ? 'AB' : (didA ? 'A' : 'B');
@@ -552,12 +565,15 @@ async function doConfirm(id) {
 }
  
 async function doReset() {
+  // Reset completo: estado, fechas e iconos — el listado queda limpio
   S.members.forEach(m => {
-    m.status = 'pending';
-    // NO reseteamos deliveredProducts ni lastDate para conservar historial
+    m.status            = 'pending';
+    m.lastDate          = null;
+    m.deliveredProducts = null;
   });
   S.assignments = { A: null, B: null };
   S.roundNumber = (S.roundNumber || 1) + 1;
+  currentFilter = 'all';
   await persist('¡Nueva ronda iniciada! ✓', 'm-settings');
 }
  
@@ -590,11 +606,11 @@ function handleConfirm(id) {
 }
  
 function handleReset() {
-  const total = S.members.length;
   const done  = completedCount();
+  const total = S.members.length;
   const msg   = done < total
     ? `Aún quedan ${total - done} miembros sin completar. ¿Iniciar nueva ronda de todas formas?`
-    : '¿Iniciar una nueva ronda? Los miembros volverán a "pendiente".';
+    : '¿Iniciar una nueva ronda? Todos los miembros quedarán en blanco.';
   if (!confirm(msg)) return;
   doReset();
 }
@@ -610,7 +626,9 @@ function handleSaveMembers() {
     input.classList.remove('error');
     const id       = row.dataset.id;
     const existing = S.members.find(m => m.id === id);
-    members.push(existing ? { ...existing, name } : { id, name, status: 'pending', lastDate: null, deliveredProducts: null });
+    members.push(existing
+      ? { ...existing, name }
+      : { id, name, status: 'pending', lastDate: null, deliveredProducts: null });
   });
   if (!valid) { toast('Hay campos en blanco', true); return; }
   doSaveMembers(members);
@@ -649,7 +667,7 @@ function openMembers() {
 }
  
 function addEditRow() {
-  const div  = document.createElement('div');
+  const div = document.createElement('div');
   div.className  = 'edit-row';
   div.dataset.id = uid();
   div.innerHTML  = `
@@ -682,7 +700,7 @@ function render() {
         <p>Comprueba que <strong>API_KEY</strong> y <strong>BIN_ID</strong> están configurados en el archivo HTML.</p>
       </div>`;
     document.getElementById('sticky-inner').innerHTML =
-      `<button class="btn-primary full" disabled>📋 Asignar turno</button>`;
+      `<button class="btn-primary" disabled>📋 Asignar turno</button>`;
     return;
   }
  
@@ -727,7 +745,7 @@ function render() {
       <button class="filter-tab${currentFilter === 'B'   ? ' active' : ''}" onclick="setFilter('B')">${ICON_B} ${esc(S.productNames.B)}</button>
     </div>`;
  
-  // Lista de miembros (filtrada)
+  // Lista de miembros
   const members = filteredMembers();
   let memberHtml = '';
   if (total === 0) {
@@ -749,12 +767,10 @@ function render() {
       const ap = assignedProducts(m.id);
       const st = m.status || 'pending';
       let tags = '';
-      // Tags de asignación actual (solo si no está completado)
       if (ap === 'A' || ap === 'AB') tags += `<span class="tag tag-a">${esc(S.productNames.A)}</span>`;
       if (ap === 'B' || ap === 'AB') tags += `<span class="tag tag-b">${esc(S.productNames.B)}</span>`;
-      // Tag de fecha + icono de lo entregado
       if (m.lastDate) {
-        const dp = m.deliveredProducts;
+        const dp    = m.deliveredProducts;
         const icons = dp === 'AB' ? `${ICON_A}${ICON_B}` : (dp === 'A' ? ICON_A : (dp === 'B' ? ICON_B : ''));
         tags += `<span class="tag tag-date">${esc(m.lastDate)}${icons ? ' ' + icons : ''}</span>`;
       }
@@ -769,9 +785,9 @@ function render() {
     memberHtml = `<div class="member-list">${rows}</div>`;
   }
  
+  // Render principal
   app.innerHTML = `
     ${!isSetup ? `<div class="config-warn"><b>⚠️ App sin configurar</b>Edita el HTML con tu API_KEY y BIN_ID de JSONBin.</div>` : ''}
- 
     <div class="app-header">
       <div>
         <div class="app-title">Grupo Heineken</div>
@@ -804,12 +820,12 @@ function render() {
     ${memberHtml}
   `;
  
-  // Actualizar sticky bar
+  // Actualizar sticky bar (único punto donde se modifica)
   document.getElementById('sticky-inner').innerHTML = `
-    <button class="btn-primary full" onclick="openAssign()" ${total === 0 ? 'disabled' : ''}>
+    <button class="btn-primary" onclick="openAssign()" ${total === 0 ? 'disabled' : ''}>
       📋 Asignar turno
     </button>
-    ${allDone ? `<button class="btn-ghost" onclick="handleReset()" style="white-space:nowrap">🔄 Nueva ronda</button>` : ''}
+    ${allDone ? `<button class="btn-reset" onclick="handleReset()">🔄 Nueva ronda</button>` : ''}
   `;
 }
  
